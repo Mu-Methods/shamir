@@ -1,4 +1,6 @@
 const { combinePoints } = require('./lagrange.js')
+const crypto = require('crypto')
+const BigIntBuffer = require('bigint-buffer')
 
 module.exports = {
 	random,
@@ -16,6 +18,7 @@ module.exports = {
 
 function random () {
 	//placeholder random function
+	//return BigIntBuffer.toBigIntBE(crypto.randomBytes(32))
 	return Math.random()
 }
 
@@ -25,7 +28,7 @@ function random () {
  * */
 function createRandomPolynomial (t, polynom = []) {
 	if (polynom.length < t - 1) {
-		polynom.push(Math.floor(Math.random()*100000000))
+		polynom.push(BigInt(Math.floor(random()*100000000)))
 		return createRandomPolynomial(t, polynom)
 	}
 
@@ -44,7 +47,7 @@ function addSecret (x, polynom) {
  * returns the y points of the first 256 points
  * */
 function getY (polynom, x) {
-	let y = 0
+	let y = 0n
 	let i = polynom.length - 1
 	while (i >= 0) {
 		y *= x
@@ -58,8 +61,8 @@ function getY (polynom, x) {
  * returns an array of arrays that have the x index and the y value
  * */
 function getPoints (polynom, points = []) {
-	if (points.length < 255) {
-		const x = points.length
+	if (points.length < 256) {
+		const x = BigInt(points.length)
 		points.push(getY(polynom, x))
 		return getPoints(polynom, points)
 	}
@@ -73,9 +76,11 @@ function getPoints (polynom, points = []) {
 
 function randomPoints (t, points, array = []) {
 	if (array.length < t) {
-		num = Math.floor(random() * points.length)
-		p = [num, points[num]]
-		array.push(p)
+		const num = Math.floor(Math.random() * points.length)
+		p = [BigInt(num), points[num]]
+		if (!array.some(elem => elem[0] === p[0])) {
+			array.push(p)
+		}
 		return randomPoints(t, points, array)
 	}
 	return array

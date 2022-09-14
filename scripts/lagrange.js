@@ -6,7 +6,7 @@ const { scalePolynom, addPolynoms, multiplyPolynoms } = require('./polynomial.js
 const getDivisors = (points) => {
 	const divisors = []
 	points.forEach((p, i) => {
-		let divisor = 1
+		let divisor = 1n
 		points.forEach((q, j) => {
 			if (j !== i) {
 				divisor *= p[0] - q[0]
@@ -21,10 +21,10 @@ const getDivisors = (points) => {
 const getPolynoms = (points) => {
 	const polynoms = []
 	points.forEach((p, i) => {
-		let polynom = [1]
+		let polynom = [1n]
 		points.forEach((q, j) => {
 			if (j !== i) {
-				const factor = [-q[0], 1]
+				const factor = [-q[0], 1n]
 				polynom = multiplyPolynoms(polynom, factor)
 			}
 		})
@@ -35,9 +35,9 @@ const getPolynoms = (points) => {
 }
 
 const combinePolynoms = (polynoms, divisors) => {
-	let combinedPolynom = [0]
+	let combinedPolynom = [0n]
 	polynoms.forEach((p, i) => {
-		let c = 1
+		let c = 1n
 		divisors.forEach((d, j) => {
 			if (j !== i) {
 				c *= d
@@ -47,7 +47,7 @@ const combinePolynoms = (polynoms, divisors) => {
 		combinedPolynom = addPolynoms(combinedPolynom, polynom)
 	})
 
-	let combinedDivisor = 1
+	let combinedDivisor = 1n
 	divisors.forEach(d => combinedDivisor *= d)
 	combinedPolynom = combinedPolynom.map(elem => elem / combinedDivisor)
 	return combinedPolynom

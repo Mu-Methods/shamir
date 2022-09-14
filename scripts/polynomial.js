@@ -2,20 +2,21 @@
 //the degree of the polynomial and 1 less than the length of the array should agree. Thus, cut off terminal 0s (not technically necessary?)
 //degree = polynom.length - 1
 const scalePolynom = (polynom, num) => {
-	return polynom.map(x => x*num)
+
+	return polynom.map(x => x*BigInt(num))
 }
 
 const addPolynoms = (p, q) => {
 	const polynom = []
 	polynom.length = Math.max(p.length, q.length)
-	polynom.fill(0)
+	polynom.fill(0n)
 	
 	p.forEach((elem, i) => {
-		polynom[i] += elem
+		polynom[i] += BigInt(elem)
 	})
 
 	q.forEach((elem, i) => {
-		polynom[i] += elem
+		polynom[i] += BigInt(elem)
 	})
 
 	return polynom
@@ -24,7 +25,7 @@ const addPolynoms = (p, q) => {
 const multiplyPolynoms = (p, q) => {
 	const polynom = []
 	polynom.length = p.length + q.length - 1
-	polynom.fill(0)
+	polynom.fill(0n)
 
 	p.forEach((elem, i) => {
 		q.forEach((flem, j) => {polynom[i + j] += elem * flem
