@@ -12,7 +12,7 @@ const {
 test('#addSecret', async (t) => {
   t.plan(1)
   const thresh = 18
-  const secret = BigInt(Math.floor(random()*100000000))
+  const secret = random(32)
   const randomPolynomial = createRandomPolynomial(thresh)
   const testPolynom = addSecret(secret, randomPolynomial)
   t.equal(testPolynom[0], secret, 'secret and 0 index should be the same')
@@ -24,7 +24,7 @@ test('should correctly recover secret', async (t) => {
   t.plan(2 * 255)
   for (let thresh = 1; thresh < 256; thresh++) {
     console.log(thresh)
-    const secret = BigInt(Math.floor(random()*10000000000))
+    const secret = random(32)
     console.log(secret)
     const randomPolynomial = createRandomPolynomial(thresh)
     const testPolynom = addSecret(secret, randomPolynomial)

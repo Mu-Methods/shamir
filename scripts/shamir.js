@@ -1,6 +1,5 @@
 const { combinePoints } = require('./lagrange.js')
 const crypto = require('crypto')
-const BigIntBuffer = require('bigint-buffer')
 
 module.exports = {
 	random,
@@ -16,10 +15,8 @@ module.exports = {
  * @returns float
  * */
 
-function random () {
-	//placeholder random function
-	//return BigIntBuffer.toBigIntBE(crypto.randomBytes(32))
-	return Math.random()
+function random (num = 32) {
+	return BigInt('0x'+ crypto.randomBytes(num).toString('hex'))
 }
 
 /**
@@ -28,7 +25,7 @@ function random () {
  * */
 function createRandomPolynomial (t, polynom = []) {
 	if (polynom.length < t - 1) {
-		polynom.push(BigInt(Math.floor(random()*100000000)))
+		polynom.push(random())
 		return createRandomPolynomial(t, polynom)
 	}
 
