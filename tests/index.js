@@ -22,7 +22,7 @@ test('#addSecret', async (t) => {
 test('should correctly recover secret', async (t) => {
   const expect = []
   t.plan(2 * 255)
-  for (let thresh = 1; thresh < 256; thresh++) {
+  for (let thresh = 1; thresh < 100; thresh++) {
     console.log(thresh)
     const secret = random(32)
     console.log(secret)
