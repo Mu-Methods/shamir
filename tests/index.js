@@ -13,7 +13,7 @@ const {
 
 const { combinate } = require('../scripts/combinatorics.js')
 
-/*
+
 test('#addSecret', async (t) => {
   t.plan(1)
   const thresh = 18
@@ -51,7 +51,7 @@ test('should correctly recover secret using recoverFrom', async (t) => {
   }
 })
 
-*/
+
 test('should work with any pair of points', async(t) => {
   t.plan(32131)
   const secret = random()
