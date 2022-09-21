@@ -34,6 +34,7 @@ function createShares(secret, t, n = 255, array = arrayOf(n)) {
 	array.forEach(elem => {
 		shares.push(points[elem])
 	})
+	shares.shift()
 	return shares
 }
 

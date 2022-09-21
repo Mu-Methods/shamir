@@ -13,7 +13,7 @@ const {
 
 const { combinate } = require('../scripts/combinatorics.js')
 
-
+/*
 test('#addSecret', async (t) => {
   t.plan(1)
   const thresh = 18
@@ -51,14 +51,13 @@ test('should correctly recover secret using recoverFrom', async (t) => {
   }
 })
 
-
+*/
 test('should work with any pair of points', async(t) => {
-  t.plan(32385)
+  t.plan(32131)
   const secret = random()
   const thresh = 2
   const shares = createShares(secret, thresh)
-
-  const combinations = combinate(arrayOf(255), thresh)
+  const combinations = combinate(arrayOf(254), thresh)
   combinations.forEach(combo => {
     const points = []
     combo.forEach(elem => {
@@ -70,12 +69,12 @@ test('should work with any pair of points', async(t) => {
 })
 
 test('should work with any 3 points', async(t) => {
-  t.plan(2731135)
+  t.plan(2699004)
   const secret = random()
   const thresh = 3
   const shares = createShares(secret, thresh)
 
-  const combinations = combinate(arrayOf(255), thresh)
+  const combinations = combinate(arrayOf(254), thresh)
   combinations.forEach(combo => {
     const points = []
     combo.forEach(elem => {
