@@ -14,25 +14,19 @@ const {
   recoverFull
 } = require('../build/index.js')
 
+const {
+  makePolynomial,
+  getPoints
+} = require('../build/polynomials.js')
+
 const crypto = require('crypto')
 
 function randomSecret() {
   return BigInt('0x' + crypto.randomBytes(32).toString('hex'))
 }
 
-/*
-test('#addSecret', async (t) => {
-  t.plan(1)
-  const thresh = 18
-  const secret = random(32)
-  const randomPolynomial = createRandomPolynomial(thresh)
-  const testPolynom = addSecret(secret, randomPolynomial)
-  t.equal(testPolynom[0], secret, 'secret and 0 index should be the same')
-})
-*/
 
-
-test('should correctly recover secret', async (t) => {
+test('should correctly recover secret using recover()', async (t) => {
   const expect = []
   t.plan(254)
   const secret = randomSecret()
@@ -44,6 +38,27 @@ test('should correctly recover secret', async (t) => {
     t.equal(secret, recovered, `secret recovered from first ${thresh} shares`)
   }
 })
+
+
+test('should correctly recover polynomial using recoverFull()', async (t) => {
+  t.plan(254)
+  const secret = randomSecret()
+  for (let thresh = 2; thresh < 256; thresh++) {
+    const polynom = makePolynomial(thresh - 2)
+    const points = getPoints(polynom, 256).slice(1);
+    polynom.unshift(secret)
+    const shares = [];
+    points.forEach(p => {
+        const point = [0n, 0n];
+        point[0] = p[0];
+        point[1] = p[0] * p[1] + secret;
+        shares.push(point);
+    });
+    const recovered = recoverFull(shares)
+    t.deepEqual(polynom, recovered, 'polynom correctly recovered')
+  }
+})
+
 
 test('should work with any pair of points', async(t) => {
   const secret = randomSecret()
@@ -83,5 +98,13 @@ test('should work with any 3 points', async(t) => {
   })
 })
 
-
+test('can\'t recover secret without enough shares', async (t) => {
+  t.plan(253)
+  const secret = randomSecret()
+  for (let thresh = 3; thresh < 256; thresh++) {
+    const shares = randomShares(share(secret, thresh, 255), thresh - 1)
+    const recovered = recover(shares)
+    t.equal(true, recovered !== secret, 'not enough shares, secret not recovered')
+  }
+})
 
