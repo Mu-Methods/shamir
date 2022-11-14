@@ -1,6 +1,5 @@
 const { scalePolynom, addPolynoms, multiplyPolynoms } = require('./polynomial.js')
 //points are arrays of the form [x, y]
-
 //for each point [x_j, y_j], calculate the constant (x_j - x_i) for each x_i !== x_j 
 //and multiply them all together
 const getDivisors = (points) => {
@@ -12,7 +11,7 @@ const getDivisors = (points) => {
 				divisor *= p[0] - q[0]
 			}
 		})
-		divisors[i] = divisor
+		divisors.push(divisor)
 	})
 	return divisors
 }
@@ -29,7 +28,7 @@ const getPolynoms = (points) => {
 			}
 		})
 		polynom = polynom.map(elem => elem*p[1])
-		polynoms[i] = polynom
+		polynoms.push(polynom)
 	})
 	return polynoms
 }
