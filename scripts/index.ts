@@ -22,7 +22,7 @@ function share(secret:bigint, t:number, n:number = 255):Array<tPoint> {
 		throw new Error("threshold too small")
 	}
 	const polynom:Array<bigint> = makePolynomial(t - 2)
-	const points:Array<tPoint> = getPoints(polynom, n).slice(1)
+	const points:Array<tPoint> = getPoints(polynom, n + 1).slice(1)
 	const shares:Array<tPoint> = []
 	points.forEach(p => {
 		const point:tPoint = [0n, 0n]
@@ -41,7 +41,7 @@ function recover(shares:Array<tPoint>, t:number = shares.length):bigint {
 	return interpolate(shares.slice(0, t))
 }
 
-function recoverFull(shares:Array<tPoint>, t:number = shares.length, polynom:Array<bigint> = []) {
+function recoverFull(shares:Array<tPoint>, t:number = shares.length, polynom:Array<bigint> = []):Array<bigint> {
 	const recovered:bigint = interpolate(shares.slice(0, t))
 	if (polynom.length < t) {
 		polynom.push(recovered)
@@ -51,9 +51,13 @@ function recoverFull(shares:Array<tPoint>, t:number = shares.length, polynom:Arr
 	const copy:Array<tPoint> = []
 	shares.forEach(share => copy.push(share))
 	copy.pop()
-	copy.forEach(share => {
+	copy.forEach((share, i) => {
 		const x:bigint = share[0]
 		const y:bigint = (share[1] - recovered) / x
+		const newShare:tPoint = [0n, 0n]
+		newShare.push(x)
+		newShare.push(y)
+		copy[i] = newShare
 	})
 	return recoverFull (copy, t - 1, polynom)
 }

@@ -1,49 +1,48 @@
 const crypto = require('crypto')
 
-module.exports = {
-	makePolynomial,
-	getPoints,
-	randomPoints
-}
+type tPoint = [bigint, bigint]
 
-function plug(x, polynom) {
-	let y = 0n
-	const copy = []
+function plug(x:bigint, polynom:Array<bigint>) {
+	let y:bigint = 0n
+	const copy:Array<bigint> = []
 	polynom.forEach(elem => copy.push(elem))
 	while (copy.length > 0) {
 		y *= x
-		y += copy.pop()
+		let last:any = copy.pop()
+		if (typeof last === 'bigint') {
+			y += last
+		}
 	}
 	return y
 }
 
-function makePolynomial(num) {
-	const polynom = []
+export function makePolynomial(num: number):Array<bigint> {
+	const polynom:Array<bigint> = []
 	while (polynom.length <= num) {
 		polynom.push(BigInt('0x' + crypto.randomBytes(32).toString('hex')))
 	}
 	return polynom
 }
 
-function getPoints(polynom, n = 256) {
-	const points = []
+export function getPoints(polynom:Array<bigint>, n:number = 256):Array<tPoint> {
+	const points:Array<tPoint> = []
 	while (points.length <= n) {
-		const p = []
-		const x = BigInt(points.length)
-		const y = plug(x, polynom)
-		p.push(x)
-		p.push(y)
+		const p:tPoint = [0n, 0n]
+		const x:bigint = BigInt(points.length)
+		const y:bigint = plug(x, polynom)
+		p[0] = x
+		p[1] = y
 		points.push(p)
 	}
 	return points
 }
 
-function randomPoints(points, n) {
-	const copy = []
+export function randomPoints(points:Array<tPoint>, n:number):Array<tPoint> {
+	const copy:Array<tPoint> = []
 	points.forEach(p => copy.push(p))
 	while (copy.length > n) {
-		let num = Math.ceil(copy.length / 256)
-		const rando = parseInt(crypto.randomBytes(num).toString('hex'))
+		let num:number = Math.ceil(copy.length / 256)
+		const rando:number = parseInt(crypto.randomBytes(num).toString('hex'))
 		if (rando < copy.length) {
 			copy.splice(rando, 1)
 		}

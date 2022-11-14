@@ -7,9 +7,6 @@
  * given points
  * 
 */
-module.exports = {
-	interpolate
-}
 
 type tPoint = [bigint, bigint]
 
@@ -42,7 +39,7 @@ function numerators(points:Array<tPoint>):Array<bigint> {
 }
 
 
-function interpolate(points:Array<tPoint>):bigint {
+export function interpolate(points:Array<tPoint>):bigint {
 	const dens:Array<bigint> = denominators(points)
 	const nums:Array<bigint> = numerators(points)
 

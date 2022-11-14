@@ -12,7 +12,7 @@ const {
   randomShares,
   recover,
   recoverFull
-} = require('../scripts/index.js')
+} = require('../build/index.js')
 
 const crypto = require('crypto')
 
