@@ -1,101 +1,106 @@
 var test = require('tape')
+
 const {
-  random,
-  arrayOf,
-  addSecret,
-  createRandomPolynomial,
-  getPoints,
-  randomPoints,
-  combinePoints,
-  createShares,
-  recoverFrom
-} = require('../scripts/shamir.js')
+  factorial,
+  permute,
+  combinate,
+  arrayOf
+} = require('./combinatorics.js')
 
-const { combinate } = require('../scripts/combinatorics.js')
+const {
+  share,
+  randomShares,
+  recover,
+  recoverFull
+} = require('../build/index.js')
+
+const {
+  makePolynomial,
+  getPoints
+} = require('../build/polynomials.js')
+
+const crypto = require('crypto')
+
+function randomSecret() {
+  return BigInt('0x' + crypto.randomBytes(32).toString('hex'))
+}
 
 
-test('#addSecret', async (t) => {
-  t.plan(1)
-  const thresh = 18
-  const secret = random()
-  const randomPolynomial = createRandomPolynomial(thresh)
-  const testPolynom = addSecret(secret, randomPolynomial)
-  t.equal(testPolynom[0], secret, 'secret and 0 index should be the same')
-})
+const maxThresh = 255
 
-test('should correctly recover polynomial using combinePoints', async (t) => {
-  t.plan(255)
-  const secret = random()
-  for (let thresh = 1; thresh < 256; thresh++) {
-    const randomPolynomial = createRandomPolynomial(thresh - 1)
-    const testPolynom = addSecret(secret, randomPolynomial)
-    const testPoints = getPoints(testPolynom)
-    const shares = randomPoints(thresh, testPoints)
-    const recovered = combinePoints(shares)
-    t.deepEqual(testPolynom, recovered, 'polynomials should be the same')
-  }
-})
-
-test('should correctly recover secret using recoverFrom', async (t) => {
-  t.plan(255)
-  const secret = random()
-  for (let thresh = 1; thresh < 256; thresh++) {
-    const randomPolynomial = createRandomPolynomial(thresh - 1)
-    const testPolynom = addSecret(secret, randomPolynomial)
-    const testPoints = getPoints(testPolynom)
-    const shares = randomPoints(thresh, testPoints)
-    const recovered = recoverFrom(shares)
+test('should correctly recover secret using recover()', async (t) => {
+  t.plan(maxThresh -2)
+  const secret = randomSecret()
+  for (let thresh = 2; thresh < maxThresh; thresh++) {
+    const shares = share(secret, thresh)
+    const recovered = recover(shares, thresh)
     // todo write tests to ensure recovery is impossible without meeting the threshold
     // todo: loop test with all or some points
-    t.deepEqual(secret, recovered, 'secret should be the same')
+    t.equal(secret, recovered, `secret recovered from first ${thresh} shares`)
   }
 })
+
+test('should correctly recover polynomial using recoverFull()', async (t) => {
+  t.plan(200 - 2)
+  const secret = randomSecret()
+  for (let thresh = 2; thresh < 200; thresh++) {
+    const polynom = makePolynomial(thresh - 2)
+    polynom.unshift(secret)
+    const shares = getPoints(polynom, thresh + 1).slice(1);
+    const recovered = recoverFull(shares)
+    t.deepEqual(polynom, recovered, 'polynom correctly recovered')
+  }
+})
+
 
 
 test('should work with any pair of points', async(t) => {
-  t.plan(32131)
-  const secret = random()
+  const secret = randomSecret()
   const thresh = 2
-  const shares = createShares(secret, thresh)
-  const combinations = combinate(arrayOf(254), thresh)
+  const shares = share(secret, thresh)
+  const combinations = combinate(arrayOf(255), thresh)
+  t.plan(combinations.length)
   combinations.forEach(combo => {
+    let shareIndex = ''
     const points = []
     combo.forEach(elem => {
+      shareIndex += `${elem}, `
       points.push(shares[elem])
     })
-    const recovered = recoverFrom(points)
-    t.equal(secret, recovered, 'secrets should be the same')    
+    const recovered = recover(points)
+    t.equal(secret, recovered, `secret recovered from shares ${shareIndex}`)    
   })
 })
+
+
 
 test('should work with any 3 points', async(t) => {
-  t.plan(2699004)
-  const secret = random()
+  const secret = randomSecret()
   const thresh = 3
-  const shares = createShares(secret, thresh)
-
-  const combinations = combinate(arrayOf(254), thresh)
+  const shares = share(secret, thresh)
+  const combinations = combinate(arrayOf(255), thresh)
+  t.plan(combinations.length)
   combinations.forEach(combo => {
     const points = []
+    let shareIndex = ``
     combo.forEach(elem => {
+      shareIndex += `${elem}, `
       points.push(shares[elem])
     })
-    const recovered = recoverFrom(points)
-    t.equal(secret, recovered, 'secrets should be the same')    
+    const recovered = recover(points)
+    t.equal(secret, recovered, `secret recovered from shares ${shareIndex}`)    
   })
 })
 
-test('can\'t recover secret without enough points', async (t) => {
-  t.plan(254)
-  const secret = random()
-  for (let thresh = 2; thresh < 256; thresh++) {
-    const randomPolynomial = createRandomPolynomial(thresh - 1)
-    const testPolynom = addSecret(secret, randomPolynomial)
-    const testPoints = getPoints(testPolynom)
-    testPoints.shift()
-    const shares = randomPoints(thresh - 1, testPoints)
-    const recovered = recoverFrom(shares)
-    t.equal(true, recovered !== secret, 'secrets should be different')
+test('can\'t recover secret without enough shares', async (t) => {
+  t.plan(maxThresh - 3)
+  const secret = randomSecret()
+  for (let thresh = 3; thresh < maxThresh; thresh++) {
+    const shares = randomShares(share(secret, thresh, 255), thresh - 1)
+    const recovered = recover(shares)
+    t.equal(true, recovered !== secret, 'not enough shares, secret not recovered')
   }
 })
+
+
 
