@@ -39,14 +39,13 @@ test('should correctly recover secret using recover()', async (t) => {
   }
 })
 
-
 test('should correctly recover polynomial using recoverFull()', async (t) => {
   t.plan(254)
   const secret = randomSecret()
   for (let thresh = 2; thresh < 256; thresh++) {
     const polynom = makePolynomial(thresh - 2)
-    const points = getPoints(polynom, 256).slice(1);
     polynom.unshift(secret)
+    const points = getPoints(polynom, thresh + 1).slice(1);
     const shares = [];
     points.forEach(p => {
         const point = [0n, 0n];
@@ -58,7 +57,6 @@ test('should correctly recover polynomial using recoverFull()', async (t) => {
     t.deepEqual(polynom, recovered, 'polynom correctly recovered')
   }
 })
-
 
 test('should work with any pair of points', async(t) => {
   const secret = randomSecret()

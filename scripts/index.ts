@@ -41,24 +41,20 @@ function recover(shares:Array<tPoint>, t:number = shares.length):bigint {
 	return interpolate(shares.slice(0, t))
 }
 
-function recoverFull(shares:Array<tPoint>, t:number = shares.length, polynom:Array<bigint> = []):Array<bigint> {
+function recoverFull(shares:Array<tPoint>, thresh:number = shares.length, t:number = shares.length, polynom:Array<bigint> = []):Array<bigint> {
 	const recovered:bigint = interpolate(shares.slice(0, t))
-	if (polynom.length < t) {
+	if (polynom.length < thresh) {
 		polynom.push(recovered)
 	} else {
+		polynom.shift()
 		return polynom
 	}
 	const copy:Array<tPoint> = []
-	shares.forEach(share => copy.push(share))
-	copy.pop()
-	copy.forEach((share, i) => {
-		const x:bigint = share[0]
-		const y:bigint = (share[1] - recovered) / x
-		const newShare:tPoint = [0n, 0n]
-		newShare.push(x)
-		newShare.push(y)
-		copy[i] = newShare
+	shares.forEach(share => {
+		const newShare:tPoint = [share[0], (share[1] - recovered) / share[0]]
+		copy.push(newShare)
 	})
-	return recoverFull (copy, t - 1, polynom)
+	copy.pop()
+	return recoverFull (copy, thresh, copy.length, polynom)
 }
 

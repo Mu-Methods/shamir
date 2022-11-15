@@ -28,24 +28,20 @@ function randomShares(shares, n = 255) {
 function recover(shares, t = shares.length) {
     return interpolate(shares.slice(0, t));
 }
-function recoverFull(shares, t = shares.length, polynom = []) {
+function recoverFull(shares, thresh = shares.length, t = shares.length, polynom = []) {
     const recovered = interpolate(shares.slice(0, t));
-    if (polynom.length < t) {
+    if (polynom.length < thresh) {
         polynom.push(recovered);
     }
     else {
+        polynom.shift();
         return polynom;
     }
     const copy = [];
-    shares.forEach(share => copy.push(share));
-    copy.pop();
-    copy.forEach((share, i) => {
-        const x = share[0];
-        const y = (share[1] - recovered) / x;
-        const newShare = [0n, 0n];
-        newShare.push(x);
-        newShare.push(y);
-        copy[i] = newShare;
+    shares.forEach(share => {
+        const newShare = [share[0], (share[1] - recovered) / share[0]];
+        copy.push(newShare);
     });
-    return recoverFull(copy, t - 1, polynom);
+    copy.pop();
+    return recoverFull(copy, thresh, copy.length, polynom);
 }
