@@ -2,16 +2,11 @@ const crypto = require('crypto')
 
 type tPoint = [bigint, bigint]
 
-function plug(x:bigint, polynom:Array<bigint>) {
+export function plug(x:bigint, polynom:Array<bigint>):bigint {
 	let y:bigint = 0n
-	const copy:Array<bigint> = []
-	polynom.forEach(elem => copy.push(elem))
-	while (copy.length > 0) {
+	for (let i = polynom.length - 1; i >= 0; i--) {
 		y *= x
-		let last:any = copy.pop()
-		if (typeof last === 'bigint') {
-			y += last
-		}
+		y += polynom[i]
 	}
 	return y
 }
@@ -27,19 +22,16 @@ export function makePolynomial(num: number):Array<bigint> {
 export function getPoints(polynom:Array<bigint>, n:number = 256):Array<tPoint> {
 	const points:Array<tPoint> = []
 	while (points.length < n) {
-		const p:tPoint = [0n, 0n]
 		const x:bigint = BigInt(points.length)
 		const y:bigint = plug(x, polynom)
-		p[0] = x
-		p[1] = y
-		points.push(p)
+		const newPoint:tPoint = [x, y]
+		points.push(newPoint)
 	}
 	return points
 }
 
 export function randomPoints(points:Array<tPoint>, n:number):Array<tPoint> {
-	const copy:Array<tPoint> = []
-	points.forEach(p => copy.push(p))
+	const copy:Array<tPoint> = points.slice(0)
 	while (copy.length > n) {
 		let num:number = Math.ceil(copy.length / 256)
 		const rando:number = parseInt(crypto.randomBytes(num).toString('hex'))
