@@ -26,7 +26,7 @@ function randomSecret() {
 }
 
 
-const maxThresh = 100
+const maxThresh = 255
 
 test('should correctly recover secret using recover()', async (t) => {
   t.plan(maxThresh -2)
@@ -41,10 +41,9 @@ test('should correctly recover secret using recover()', async (t) => {
 })
 
 test('should correctly recover polynomial using recoverFull()', async (t) => {
-  const maxThresh = 100
-  t.plan(maxThresh - 2)
+  t.plan(200 - 2)
   const secret = randomSecret()
-  for (let thresh = 2; thresh < maxThresh; thresh++) {
+  for (let thresh = 2; thresh < 200; thresh++) {
     const polynom = makePolynomial(thresh - 2)
     polynom.unshift(secret)
     const shares = getPoints(polynom, thresh + 1).slice(1);
@@ -54,7 +53,7 @@ test('should correctly recover polynomial using recoverFull()', async (t) => {
 })
 
 
-/*
+
 test('should work with any pair of points', async(t) => {
   const secret = randomSecret()
   const thresh = 2
@@ -104,4 +103,4 @@ test('can\'t recover secret without enough shares', async (t) => {
 })
 
 
-*/
+
