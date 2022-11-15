@@ -25,7 +25,7 @@ function makePolynomial(num) {
 exports.makePolynomial = makePolynomial;
 function getPoints(polynom, n = 256) {
     const points = [];
-    while (points.length <= n) {
+    while (points.length < n) {
         const p = [0n, 0n];
         const x = BigInt(points.length);
         const y = plug(x, polynom);

@@ -12,13 +12,10 @@ function share(secret, t, n = 255) {
         throw new Error("threshold too small");
     }
     const polynom = makePolynomial(t - 2);
-    const points = getPoints(polynom, n + 1).slice(1);
-    const shares = [];
-    points.forEach(p => {
-        const point = [0n, 0n];
-        point[0] = p[0];
-        point[1] = p[0] * p[1] + secret;
-        shares.push(point);
+    const shares = getPoints(polynom, n + 1).slice(1);
+    shares.forEach(p => {
+        p[1] *= p[0];
+        p[1] += secret;
     });
     return shares;
 }
@@ -28,20 +25,16 @@ function randomShares(shares, n = 255) {
 function recover(shares, t = shares.length) {
     return interpolate(shares.slice(0, t));
 }
-function recoverFull(shares, thresh = shares.length, t = shares.length, polynom = []) {
-    const recovered = interpolate(shares.slice(0, t));
-    if (polynom.length < thresh) {
-        polynom.push(recovered);
-    }
-    else {
-        polynom.shift();
+function recoverFull(shares, thresh = shares.length, polynom = []) {
+    if (polynom.length === thresh) {
         return polynom;
     }
-    const copy = [];
-    shares.forEach(share => {
-        const newShare = [share[0], (share[1] - recovered) / share[0]];
-        copy.push(newShare);
+    const recovered = recover(shares.slice(0, thresh - polynom.length));
+    polynom.push(recovered);
+    const copy = shares.slice(0, thresh - polynom.length);
+    copy.forEach(s => {
+        s[1] -= recovered;
+        s[1] /= s[0];
     });
-    copy.pop();
-    return recoverFull(copy, thresh, copy.length, polynom);
+    return recoverFull(copy, thresh, polynom);
 }

@@ -12,29 +12,29 @@ type tPoint = [bigint, bigint]
 
 function denominators(points:Array<tPoint>):Array<bigint> {
 	const dens:Array<bigint> = []
-	points.forEach((p, i) => {
+	for (let i = 0; i < points.length; i++) {
 		let product:bigint = 1n
-		points.forEach((q, j) => {
+		for (let j = 0; j < points.length; j++) {
 			if (j !== i) {
-				product *= (p[0] - q[0])
+				product *= (points[i][0] - points[j][0])
 			}
-		})
+		}
 		dens.push(product)
-	})
+	}
 	return dens
 }
 
 function numerators(points:Array<tPoint>):Array<bigint> {
 	const nums:Array<bigint> = []
-	points.forEach((p, i) => {
-		let product:bigint = p[1]
-		points.forEach((q, j) => {
+	for (let i = 0; i < points.length; i++) {
+		let product:bigint = points[i][1]
+		for (let j = 0; j < points.length; j++) {
 			if (j !== i) {
-				product *= -q[0]
+				product *= -points[j][0]
 			}
-		})
+		}
 		nums.push(product)
-	})
+	}
 	return nums
 }
 

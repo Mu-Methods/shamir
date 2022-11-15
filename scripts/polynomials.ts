@@ -26,7 +26,7 @@ export function makePolynomial(num: number):Array<bigint> {
 
 export function getPoints(polynom:Array<bigint>, n:number = 256):Array<tPoint> {
 	const points:Array<tPoint> = []
-	while (points.length <= n) {
+	while (points.length < n) {
 		const p:tPoint = [0n, 0n]
 		const x:bigint = BigInt(points.length)
 		const y:bigint = plug(x, polynom)
