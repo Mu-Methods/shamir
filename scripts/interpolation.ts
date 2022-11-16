@@ -8,51 +8,31 @@
  * 
 */
 
+const bigMath = require('./bigMath.js')
+
 type tPoint = [bigint, bigint]
+type tFrac = [bigint, bigint]
 
-function denominators(points:Array<tPoint>):Array<bigint> {
-	const dens:Array<bigint> = []
-	for (let i = 0; i < points.length; i++) {
-		let product:bigint = 1n
-		for (let j = 0; j < points.length; j++) {
-			if (j !== i) {
-				product *= (points[i][0] - points[j][0])
-			}
-		}
-		dens.push(product)
+function getLagrangeFrac(point:tPoint, points:Array<tPoint>):tFrac {
+	if (point[0] === 0n) {
+		throw new Error(`bad point:\n x = ${point[0]}\n y = ${point[1]}`)
 	}
-	return dens
-}
-
-function numerators(points:Array<tPoint>):Array<bigint> {
-	const nums:Array<bigint> = []
-	for (let i = 0; i < points.length; i++) {
-		let product:bigint = points[i][1]
-		for (let j = 0; j < points.length; j++) {
-			if (j !== i) {
-				product *= -points[j][0]
-			}
+	let frac = bigMath.newFrac(1n, point[1])
+	points.forEach(p => {
+		if (point[0] !== p[0]) {
+			let f = bigMath.newFrac(p[0] - point[0], p[0])
+			frac = bigMath.multiplyFrac(frac, f)
 		}
-		nums.push(product)
-	}
-	return nums
-}
+	})
 
+	return frac
+}
 
 export function interpolate(points:Array<tPoint>):bigint {
-	const dens:Array<bigint> = denominators(points)
-	const nums:Array<bigint> = numerators(points)
-
-	let sum:bigint = 0n
-	nums.forEach((num, i) => {
-		let product:bigint = num
-		dens.forEach((den, j) => {
-			if (j !== i) {
-				product *= den
-			}
-		})
-		sum += product
+	let sum = [1n, 0n]
+	points.forEach(p => {
+		sum = bigMath.addFrac(getLagrangeFrac(p, points), sum)
 	})
-	dens.forEach(den => sum /= den)
-	return sum
+
+	return bigMath.integerFrac(sum)
 }
