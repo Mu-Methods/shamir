@@ -10,7 +10,7 @@ const { interpolate } = require('./interpolation.js')
 const { makePolynomial, getPoints, randomPoints } = require('./polynomials.js')
 module.exports = {
 	share,
-	randomShares,
+	randomShare,
 	recover,
 	recoverFull
 }
@@ -30,7 +30,8 @@ function share(secret:bigint, t:number, n:number = 255):Array<tPoint> {
 	return shares
 }
 
-function randomShares(shares:Array<tPoint>, n:number = 255):Array<tPoint> {
+function randomShare(secret:bigint, t:number, n:number):Array<tPoint> {
+	const shares = share(secret, t)
 	return randomPoints(shares, n)
 }
 

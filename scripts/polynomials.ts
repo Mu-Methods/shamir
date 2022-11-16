@@ -21,8 +21,8 @@ export function makePolynomial(num: number):Array<bigint> {
 
 export function getPoints(polynom:Array<bigint>, n:number = 256):Array<tPoint> {
 	const points:Array<tPoint> = []
-	while (points.length < n) {
-		const x:bigint = BigInt(points.length)
+	for (let i = 0; i < n; i++) {
+		const x:bigint = BigInt(i)
 		const y:bigint = plug(x, polynom)
 		const newPoint:tPoint = [x, y]
 		points.push(newPoint)
@@ -31,13 +31,20 @@ export function getPoints(polynom:Array<bigint>, n:number = 256):Array<tPoint> {
 }
 
 export function randomPoints(points:Array<tPoint>, n:number):Array<tPoint> {
-	const copy:Array<tPoint> = points.slice(0)
-	while (copy.length > n) {
-		let num:number = Math.ceil(copy.length / 256)
-		const rando:number = parseInt(crypto.randomBytes(num).toString('hex'))
-		if (rando < copy.length) {
-			copy.splice(rando, 1)
+	const newPoints:Array<tPoint> = []
+	while (newPoints.length < n) {
+		const rando:number = (parseInt(crypto.randomBytes(2).toString('hex')) % points.length)
+		if (rando < points.length) {
+			let check = true
+			newPoints.forEach(p => {
+				if (points[rando][0] === p[0]) {
+					check = false
+				}
+			})
+			if (check) {
+				newPoints.push(points[rando])
+			}
 		}
 	}
-	return copy
+	return newPoints
 }
