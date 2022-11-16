@@ -9,7 +9,7 @@ const {
 
 const {
   share,
-  randomShares,
+  randomShare,
   recover,
   recoverFull
 } = require('../build/index.js')
@@ -42,26 +42,47 @@ test('should correctly recover secret using recover()', async (t) => {
   }
 })
 
+test('can\'t recover secret without enough shares', async (t) => {
+  t.plan(maxThresh - 2)
+  const secret = randomSecret()
+  const shares = share(secret, maxThresh)
+  for (let thresh = 2; thresh <= maxThresh - 1; thresh++) {
+    const recovered = recover(shares.slice(0, thresh))
+    if (recovered === secret) {
+      throw new Error('something went wrong')
+    }
+    t.equal(false, recovered === secret, 'not enough shares, secret not recovered')
+  }
+})
+
 
 test('should correctly recover polynomial using recoverFull()', async (t) => {
-  t.plan(100 - 1)
-  for (let thresh = 2; thresh <= 100; thresh++) {
+  t.plan(1)
+    const thresh = maxThresh
     const polynom = makePolynomial(thresh - 1)
     const shares = getPoints(polynom).slice(1)
     const spoil = recover(shares, thresh)
     const recovered = recoverFull(shares, thresh)
     t.deepEqual(polynom, recovered, 'polynom correctly recovered')
-  }
 })
 
 
-const maxCombo = 255
+test('should work with random shares', async(t) => {
+  t.plan(maxThresh - 1)
+  const secret = randomSecret()
+  for (let thresh = 2; thresh <= maxThresh; thresh++) {
+    const shares = randomShare(secret, thresh, thresh)
+    const recovered = recover(shares)
+    t.equal(recovered, secret, 'secret recovered from random shares')
+  }
+})
+
 
 test('should work with any pair of points', async(t) => {
   const secret = randomSecret()
   const thresh = 2
   const shares = share(secret, thresh)
-  const combinations = combinate(arrayOf(maxCombo), thresh)
+  const combinations = combinate(arrayOf(195), thresh)
   t.plan(combinations.length)
   combinations.forEach(combo => {
     let shareIndex = ''
@@ -73,6 +94,7 @@ test('should work with any pair of points', async(t) => {
     const recovered = recover(points, thresh)
     t.equal(secret, recovered, `secret recovered from shares ${shareIndex}`)    
   })
+
 })
 
 
@@ -81,7 +103,7 @@ test('should work with any 3 points', async(t) => {
   const secret = randomSecret()
   const thresh = 3
   const shares = share(secret, thresh)
-  const combinations = combinate(arrayOf(maxCombo), thresh)
+  const combinations = combinate(arrayOf(100), thresh)
   t.plan(combinations.length)
   combinations.forEach(combo => {
     const points = []
@@ -95,16 +117,3 @@ test('should work with any 3 points', async(t) => {
   })
 })
 
-
-test('can\'t recover secret without enough shares', async (t) => {
-  t.plan(maxThresh - 2)
-  const secret = randomSecret()
-  const shares = share(secret, maxThresh)
-  for (let thresh = 2; thresh <= maxThresh - 1; thresh++) {
-    const recovered = recover(shares.slice(0, thresh))
-    if (recovered === secret) {
-      throw new Error('something went wrong')
-    }
-    t.equal(false, recovered === secret, 'not enough shares, secret not recovered')
-  }
-})
