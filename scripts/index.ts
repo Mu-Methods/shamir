@@ -50,7 +50,6 @@ function recoverFull(shares:Array<tPoint>, thresh:number = shares.length):Array<
 			s[1] -= recovered
 			s[1] /= s[0]		
 		})
-		console.log(`coefficient ${255 - i} recovered`)
 	}
 	return polynom
 }
